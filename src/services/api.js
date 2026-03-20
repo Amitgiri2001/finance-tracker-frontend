@@ -1,0 +1,13 @@
+import axios from "axios";
+
+const API = axios.create({
+  baseURL:
+    import.meta.env.VITE_API_PROD_URL ||
+    import.meta.env.VITE_API_LOCAL_URL ||
+    "http://localhost:8080/api/txn",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+});
+
+export default API;
