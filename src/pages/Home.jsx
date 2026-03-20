@@ -7,13 +7,14 @@ import FilterBar from "../components/FilterBar";
 
 function Home() {
   const [transactions, setTransactions] = useState([]);
-
+  const [isLoading, setIsLoading] = useState(true);
   const fetchData = async () => {
+    setIsLoading(true);
     //default filter - today's transactions
     const today = new Date().toISOString().split("T")[0];
     const res = await API.get(`/date?date=${today}`);
-    console.log("Print Data: ", res.data);
     setTransactions(res.data);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -26,9 +27,22 @@ function Home() {
         💰 Finance Tracker
       </Typography>
 
-      <TransactionForm fetchData={fetchData} />
-      <FilterBar setTransactions={setTransactions} />
-      <TransactionTable data={transactions} fetchData={fetchData} />
+      <TransactionForm
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        fetchData={fetchData}
+      />
+      <FilterBar
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        setTransactions={setTransactions}
+      />
+      <TransactionTable
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        data={transactions}
+        fetchData={fetchData}
+      />
     </Container>
   );
 }

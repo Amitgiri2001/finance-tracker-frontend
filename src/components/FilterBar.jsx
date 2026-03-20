@@ -2,7 +2,7 @@ import { useState } from "react";
 import API from "../services/api";
 import { Box, TextField, Button, MenuItem, Paper, Grid } from "@mui/material";
 
-function FilterBar({ setTransactions }) {
+function FilterBar({ setTransactions, isLoading, setIsLoading }) {
   const [filterType, setFilterType] = useState("date");
   //set default date to today in yyyy-mm-dd format
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -10,7 +10,7 @@ function FilterBar({ setTransactions }) {
 
   const handleFilter = async () => {
     let res;
-
+    setIsLoading(true);
     if (filterType === "date") {
       res = await API.get(`/date?date=${date}`);
     }
@@ -25,9 +25,11 @@ function FilterBar({ setTransactions }) {
     }
 
     setTransactions(res.data);
+    setIsLoading(false);
   };
 
   const resetFilter = async () => {
+    setIsLoading(true);
     //reset all filters
     setDate("");
     setMonth("");
@@ -35,6 +37,7 @@ function FilterBar({ setTransactions }) {
     //fetch all transactions
     const res = await API.get("/all");
     setTransactions(res.data);
+    setIsLoading(false);
   };
 
   return (
