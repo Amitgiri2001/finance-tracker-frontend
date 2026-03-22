@@ -16,6 +16,7 @@ import {
   Box,
   TableContainer,
   Modal,
+  CircularProgress,
 } from "@mui/material";
 import TransactionForm from "./TransactionForm";
 import { useState } from "react";
@@ -34,9 +35,9 @@ function TransactionTable({ data, fetchData, isLoading }) {
   const [txnData, setTxnData] = useState(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
+  // isLoading = true;
   const handleDelete = async (id) => {
-    await API.delete(`/${id}`);
+    await API.delete(`/txn/${id}`);
     fetchData();
   };
 
@@ -58,55 +59,67 @@ function TransactionTable({ data, fetchData, isLoading }) {
   // 📱 MOBILE VIEW (CARDS)
   if (isMobile) {
     return (
-      <Box>
+      <Paper sx={{ p: 3, borderRadius: 3 }}>
+        <Typography variant="h6" mb={2}>
+          Transactions
+        </Typography>
         <EditTransaction />
-        {data.map((txn) => (
-          <Card
-            key={txn.id}
-            sx={{
-              mb: 2,
-              borderRadius: 3,
-              backgroundColor: getColor(txn.type),
-              boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
-            }}
-          >
-            <CardContent>
-              {/* Top Row */}
-              <Box display="flex" justifyContent="space-between">
-                <Typography fontSize="1.5rem" fontWeight="bold">
-                  ₹ {txn.amount}
-                </Typography>
-                <Box>
-                  <ModeEditIcon
-                    fontSize="small"
-                    sx={{ cursor: "pointer", paddingRight: 1 }}
-                    onClick={() => handleUpdate(txn)}
-                  />
-                  <DeleteIcon
-                    fontSize="small"
-                    color="error"
-                    sx={{ cursor: "pointer" }}
-                    onClick={() => handleDelete(txn.id)}
-                  />
+        <Typography variant="subtitle1" mb={2}>
+          Total Expense: ₹ {totalExpense.toFixed(2)} | Avg Spending/Day: ₹{" "}
+          {avgSpendingPerDay.toFixed(2)}
+        </Typography>
+
+        {isLoading ? (
+          <Loader />
+        ) : (
+          data.map((txn) => (
+            <Card
+              key={txn.id}
+              sx={{
+                mb: 2,
+                borderRadius: 3,
+                backgroundColor: getColor(txn.type),
+                boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+              }}
+            >
+              <CardContent>
+                {/* Top Row */}
+                <Box display="flex" justifyContent="space-between">
+                  <Typography fontSize="1.5rem" fontWeight="bold">
+                    ₹ {txn.amount}
+                  </Typography>
+                  <Box>
+                    <ModeEditIcon
+                      fontSize="small"
+                      sx={{ cursor: "pointer", paddingRight: 1 }}
+                      onClick={() => handleUpdate(txn)}
+                    />
+                    <DeleteIcon
+                      fontSize="small"
+                      color="error"
+                      sx={{ cursor: "pointer" }}
+                      onClick={() => handleDelete(txn.id)}
+                    />
+                  </Box>
                 </Box>
-              </Box>
 
-              {/* Category */}
-              <Typography variant="body2" color="text.secondary">
-                {txn.category}
-              </Typography>
+                {/* Category */}
+                <Typography variant="body2" color="text.secondary">
+                  {txn.category}
+                </Typography>
 
-              {/* Date + Time */}
-              <Typography variant="caption">
-                {txn.date} • {txn.time}
-              </Typography>
+                {/* Date + Time */}
+                <Typography variant="caption">
+                  {txn.date} • {txn.time}
+                </Typography>
 
-              {/* Note */}
-              <Typography sx={{ mt: 1 }}>{txn.note}</Typography>
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
+                {/* Note */}
+                <Typography sx={{ mt: 1 }}>{txn.note}</Typography>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </Paper>
     );
   }
 
@@ -136,10 +149,15 @@ function TransactionTable({ data, fetchData, isLoading }) {
               </TableRow>
             </TableHead>
             {/* Add a spinner while loading */}
-            {isLoading && <Loader />}
-            {!isLoading && (
-              <TableBody>
-                {data.map((txn) => (
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={7} align="center">
+                    <Loader />
+                  </TableCell>
+                </TableRow>
+              ) : (
+                data.map((txn) => (
                   <TableRow key={txn.id} sx={{ bgcolor: getColor(txn.type) }}>
                     <TableCell sx={{ fontWeight: "bold" }}>
                       ₹ {txn.amount}
@@ -163,41 +181,15 @@ function TransactionTable({ data, fetchData, isLoading }) {
                       </Button>
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            )}
+                ))
+              )}
+            </TableBody>
           </Table>
         </TableContainer>
       </Paper>
     </>
   );
 
-  function EditTransaction() {
-    return (
-      <Modal open={isTxnEditing} onClose={() => setIsTxnEditing(false)}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "90%",
-            bgcolor: "background.paper",
-            borderRadius: 2,
-            boxShadow: 24,
-            p: 3,
-          }}
-        >
-          <TransactionForm
-            fetchData={fetchData}
-            isEditing={isTxnEditing}
-            setIsEditing={setIsTxnEditing}
-            txnData={txnData}
-          />
-        </Box>
-      </Modal>
-    );
-  }
   function EditTransaction() {
     return (
       <Modal open={isTxnEditing} onClose={() => setIsTxnEditing(false)}>

@@ -31,11 +31,14 @@ function TransactionForm({
   const txn = isEditing
     ? txnData
     : {
-        type: "",
-        category: "",
+        type: "expense",
+        category: "food",
         amount: "",
-        date: "",
-        time: "",
+        date: new Date().toISOString().split("T")[0],
+        time: new Date().toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
         note: "",
       };
   const [form, setForm] = useState(txn);
@@ -48,9 +51,9 @@ function TransactionForm({
     setIsLoading(true);
     e.preventDefault();
     if (isEditing) {
-      await API.put(`/${txnData.id}`, form);
+      await API.put(`/txn/${txnData.id}`, form);
     } else {
-      await API.post("", form);
+      await API.post("/txn", form);
     }
 
     setForm({
@@ -61,8 +64,13 @@ function TransactionForm({
       time: "",
       note: "",
     });
+    setIsLoading(false);
+
     fetchData();
-    setIsEditing(false);
+    if (setIsEditing) {
+      setIsEditing(false);
+    }
+    s;
   };
 
   return (

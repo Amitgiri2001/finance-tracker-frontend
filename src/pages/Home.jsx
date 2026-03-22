@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import API from "../services/api";
 import TransactionForm from "../components/TransactionForm";
 import TransactionTable from "../components/TransactionTable";
-import { Container, Typography } from "@mui/material";
+import { Button, Container, Typography } from "@mui/material";
 import FilterBar from "../components/FilterBar";
 
 function Home() {
@@ -12,7 +12,8 @@ function Home() {
     setIsLoading(true);
     //default filter - today's transactions
     const today = new Date().toISOString().split("T")[0];
-    const res = await API.get(`/date?date=${today}`);
+    const res = await API.get(`/txn/date?date=${today}`);
+    // console.log(API.defaults.baseURL);
     setTransactions(res.data);
     setIsLoading(false);
   };
@@ -20,6 +21,11 @@ function Home() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+  };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
@@ -43,6 +49,14 @@ function Home() {
         data={transactions}
         fetchData={fetchData}
       />
+      <Button
+        variant="contained"
+        color="secondary"
+        onClick={logout}
+        sx={{ mt: 2 }}
+      >
+        Logout
+      </Button>
     </Container>
   );
 }

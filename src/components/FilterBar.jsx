@@ -12,16 +12,17 @@ function FilterBar({ setTransactions, isLoading, setIsLoading }) {
     let res;
     setIsLoading(true);
     if (filterType === "date") {
-      res = await API.get(`/date?date=${date}`);
+      res = await API.get(`/txn/date?date=${date}`);
     }
 
     if (filterType === "week") {
-      res = await API.get(`/week?date=${date}`);
+      res = await API.get(`/txn/week?date=${date}`);
     }
 
     if (filterType === "month") {
       const [year, mon] = month.split("-");
-      res = await API.get(`/month?year=${year}&month=${mon}`);
+      res = await API.get(`/txn/month?year=${year}&month=${mon}`);
+      res = await API.get(`/txn/month?year=${year}&month=${mon}`);
     }
 
     setTransactions(res.data);
@@ -35,7 +36,7 @@ function FilterBar({ setTransactions, isLoading, setIsLoading }) {
     setMonth("");
     setFilterType("");
     //fetch all transactions
-    const res = await API.get("/all");
+    const res = await API.get("/txn/all");
     setTransactions(res.data);
     setIsLoading(false);
   };
