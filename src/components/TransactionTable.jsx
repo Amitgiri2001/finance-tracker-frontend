@@ -48,14 +48,21 @@ function TransactionTable({ data, fetchData, isLoading }) {
   //Calculate sum of all expenses & avg spending per day
   let totalExpense = 0;
   let countDays = new Set();
+  let firstTxnDate = data.length > 0 ? new Date(data[0].date) : new Date();
+  let lastTxnDate =
+    data.length > 0 ? new Date(data[data.length - 1].date) : new Date();
   data.forEach((txn) => {
     if (txn.type === "expense") {
-      totalExpense += parseFloat(txn.amount);
-      countDays.add(txn.date);
+      totalExpense += txn.amount;
     }
   });
-  const avgSpendingPerDay =
-    countDays.size > 0 ? totalExpense / countDays.size : 0;
+  // Calculate number of days between first and last transaction
+  const timeDiff = lastTxnDate.getTime() - firstTxnDate.getTime();
+  const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // +1 to include both start and end days
+
+  // Use the number of unique days with expenses for avg calculation
+  const avgSpendingPerDay = dayDiff > 0 ? totalExpense / dayDiff : totalExpense;
+
   // 📱 MOBILE VIEW (CARDS)
   if (isMobile) {
     return (
@@ -65,8 +72,8 @@ function TransactionTable({ data, fetchData, isLoading }) {
         </Typography>
         <EditTransaction />
         <Typography variant="subtitle1" mb={2}>
-          Total Expense: ₹ {totalExpense.toFixed(2)} | Avg Spending/Day: ₹{" "}
-          {avgSpendingPerDay.toFixed(2)}
+          Last {dayDiff} Days | Total Expense: ₹ {totalExpense.toFixed(2)} | Avg
+          Spending/Day: ₹ {avgSpendingPerDay.toFixed(2)}
         </Typography>
 
         {isLoading ? (
@@ -133,8 +140,8 @@ function TransactionTable({ data, fetchData, isLoading }) {
         </Typography>
         {/* Display sum and avg spending per day */}
         <Typography variant="subtitle1" mb={2}>
-          Total Expense: ₹ {totalExpense.toFixed(2)} | Avg Spending/Day: ₹{" "}
-          {avgSpendingPerDay.toFixed(2)}
+          Last {dayDiff} Days | Total Expense: ₹ {totalExpense.toFixed(2)} | Avg
+          Spending/Day: ₹ {avgSpendingPerDay.toFixed(2)}
         </Typography>
         <TableContainer sx={{ overflowX: "auto" }}>
           <Table>
