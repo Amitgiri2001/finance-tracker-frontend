@@ -5,12 +5,9 @@ const API = axios.create({
     import.meta.env.VITE_API_PROD_URL ||
     import.meta.env.VITE_API_LOCAL_URL ||
     "http://localhost:8080/api",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //   },
 });
 
-// 🔥 Add token automatically
+// ✅ Request interceptor
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem("token");
 
@@ -20,5 +17,22 @@ API.interceptors.request.use((req) => {
 
   return req;
 });
+
+// ✅ Response interceptor (FIXED)
+API.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    console.log("error :", err);
+
+    const status = err.response?.status;
+
+    if (status === 401 || status === 403) {
+      localStorage.removeItem("token"); // optional
+      window.location.href = "/login";
+    }
+
+    return Promise.reject(err);
+  },
+);
 
 export default API;
